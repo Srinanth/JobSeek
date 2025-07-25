@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { FaGoogle, FaLinkedin, FaGithub } from "react-icons/fa";
 import { supabase } from "../lib/supabaseClient";
+import { useNavigate } from "react-router";
 
 export const LoginForm = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -18,7 +20,7 @@ export const LoginForm = () => {
       console.error("Login error:", error.message);
     } else {
       console.log("Login successful!", data);
-      // You can redirect or set user state here
+      navigate("/home");
     }
   };
 

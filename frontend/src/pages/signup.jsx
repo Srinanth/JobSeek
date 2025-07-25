@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { FaGoogle, FaLinkedin, FaGithub } from "react-icons/fa";
 import { supabase } from "../lib/supabaseClient";
+import { useNavigate } from "react-router";
 
 export const SignUpForm = () => {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -37,6 +39,7 @@ export const SignUpForm = () => {
         console.error("Profile insert error:", profileError.message);
       } else {
         console.log("User and profile created successfully!");
+        navigate("/home");
       }
     }
   };

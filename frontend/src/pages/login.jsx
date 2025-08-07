@@ -40,7 +40,7 @@ export const LoginForm = () => {
     <div className="min-h-screen flex justify-center items-center">
       <div className="w-full max-w-md p-8 space-y-8 bg-white rounded-lg shadow-md">
         <div className="text-center">
-          <h1 className="text-3xl font-bold text-gray-900">Welcome Back</h1>
+          <h1 className="text-3xl font-bold text-gray-900">Welcome Back!</h1>
           <p className="mt-2 text-sm text-gray-600">Login to continue</p>
         </div>
         <form onSubmit={handleSubmit} className="mt-8 space-y-6">

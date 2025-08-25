@@ -3,7 +3,7 @@ import { FaGoogle, FaLinkedin, FaGithub } from "react-icons/fa";
 import { supabase } from "../lib/supabaseClient";
 import { useNavigate } from "react-router";
 
-export const SignUpForm = () => {
+const SignUp = () => {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -150,3 +150,6 @@ export const SignUpForm = () => {
     </div>
   );
 };
+
+
+export default SignUp

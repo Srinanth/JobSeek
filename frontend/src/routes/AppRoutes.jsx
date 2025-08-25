@@ -1,20 +1,19 @@
 import { Routes, Route } from "react-router-dom";
-import SiteLayout from "./layouts/SiteLayout";
-import Home from "./pages/Home";
-import SignUpForm from "./pages/SignUpForm";
-import LoginForm from "./pages/LoginForm";
-import Admin from "./pages/Admin";
+import Home from "../pages/HomePage";
+import SignUpForm from "../pages/SignUp";
+import LoginForm from "../pages/Login";
+import Admin from "../pages/Admin";
+import SiteLayout from "../pages/SiteLayout";
 
 const AppRoute = () => {
     return (
         <Routes>
             {/* Public/auth routes */}
-            <Route path="/signup" element={<SignUpForm />} />
+            <Route path="/" element={<SignUpForm />} />
             <Route path="/login" element={<LoginForm />} />
 
             {/* Routes with layout */}
             <Route path="/" element={<SiteLayout />}>
-                <Route index element={<Home />} />
                 <Route path="home" element={<Home />} />
                 <Route path="admin" element={<Admin />} />
             </Route>

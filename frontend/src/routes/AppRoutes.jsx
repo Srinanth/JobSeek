@@ -1,9 +1,10 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route } from "react-router";
 import Home from "../pages/HomePage";
 import SignUpForm from "../pages/SignUp";
 import LoginForm from "../pages/Login";
 import Admin from "../pages/Admin";
 import SiteLayout from "../pages/SiteLayout";
+import Dashboard from "../pages/dashboard";
 import Search from "../pages/Search";
 
 const AppRoute = () => {
@@ -18,6 +19,7 @@ const AppRoute = () => {
                 <Route path="home" element={<Home />} />
                 <Route path="search" element={<Search />} />
                 <Route path="admin" element={<Admin />} />
+                <Route path="dashboard" element={<Dashboard />} />
             </Route>
         </Routes>
     );

@@ -6,21 +6,23 @@ import Admin from "../pages/Admin";
 import SiteLayout from "../pages/SiteLayout";
 import Dashboard from "../pages/dashboard";
 import Search from "../pages/Search";
+import Page404 from "../pages/Page404";
 
 const AppRoute = () => {
     return (
         <Routes>
             {/* Public/auth routes */}
-            <Route path="/" element={<SignUpForm />} />
+            <Route path="/signup" element={<SignUpForm />} />
             <Route path="/login" element={<LoginForm />} />
 
             {/* Routes with layout */}
             <Route path="/" element={<SiteLayout />}>
-                <Route path="home" element={<Home />} />
+                <Route index element={<Home />} />
                 <Route path="search" element={<Search />} />
                 <Route path="admin" element={<Admin />} />
                 <Route path="dashboard" element={<Dashboard />} />
             </Route>
+            <Route path="*" element={<Page404 />}/>
         </Routes>
     );
 };

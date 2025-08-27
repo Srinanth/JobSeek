@@ -1,1 +1,18 @@
 @import "tailwindcss";
+
+.loop-text {
+  display: inline-block;
+  font-size: 22px;
+  font-family: monospace;
+  color: #3498db;
+  white-space: nowrap;
+  overflow: hidden;
+  animation: typing 3s steps(10) infinite;
+}
+
+@keyframes typing {
+  0% { width: 0ch; }
+  40% { width: 10ch; }  /* "Loading..." has 10 characters */
+  60% { width: 10ch; }
+  100% { width: 0ch; }
+}

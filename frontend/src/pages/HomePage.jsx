@@ -7,7 +7,7 @@ const Home = () => {
       {/*Landing */}
       <section className="max-w-screen-2xl w-full h-full m-auto px-6 lg:flex">
         {/* Left */}
-        <div className="md:pt-40 pt-20 flex-1">
+        <div className="lg:pt-40 pt-20 flex-1">
           {/*Text box */}
           <div>
             <h2 className="text-4xl md:text-6xl font-bold">Find Your Dream Job with <span className="text-blue-500">AI-Powered</span> Recommendations</h2>

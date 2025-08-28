@@ -1,5 +1,4 @@
-import React from "react";
-import Spinner from "../components/Spinner";
+import { Link } from 'react-router';
 import heroImg from '../assets/heroimg.png'
 
 const Home = () => {
@@ -33,14 +32,14 @@ const Home = () => {
 
           {/* Buttons CTA*/}
           <div className="mt-8 flex gap-4">
-            <button className="sm:px-10 px-5 sm:text-md text-sm py-4 bg-white border border-gray-200 rounded-lg capitalize cursor-pointer text-blue-500 font-bold">Get Started for free <i className="fa fa-arrow-right pl-3 text-blue-500"></i> </button>
-            <button className="border border-gray-300 text-gray-500 font-bold  cursor-pointer sm:px-6 sm:text-md text-sm px-5 rounded-lg py-4">Sign In</button>
+            <Link className="sm:px-10 px-5 sm:text-md text-sm py-4 bg-white border border-gray-200 rounded-lg capitalize cursor-pointer text-blue-500 font-bold" to={'/signup'}>Get Started for free <i className="fa fa-arrow-right pl-3 text-blue-500"></i> </Link>
+            <Link className="border border-gray-300 text-gray-500 font-bold  cursor-pointer sm:px-6 sm:text-md text-sm px-5 rounded-lg py-4" to={'/login'}>Sign In</Link>
           </div>
         </div>
 
         {/*Right */}
         <div className="lg:min-w-190 lg:flex lg:h-full justify-center lg:mt-50 mb-10">
-          <img src={heroImg} alt="Hero Image" className="lg:w-150 md:h-100 mt-6 lg:rotate-3 rounded-xl border border-gray-200 shadow-2xl"/>
+          <img src={heroImg} alt="Hero Image" className="lg:w-150 md:h-100 mt-6 lg:rotate-3 rounded-xl border border-gray-200 shadow-2xl" />
         </div>
       </section>
     </div>

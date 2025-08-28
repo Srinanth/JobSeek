@@ -17,6 +17,8 @@ const AppRoute = () => {
 
             <Route path="/signup" element={<SignUpForm />} />
             <Route path="/login" element={<LoginForm />} />
+            <Route path="/signup" element={<SignUp />} />
+            <Route path="/login" element={<Login />} />
 
             {/* Routes with layout */}
             <Route path="/" element={<SiteLayout />}>
@@ -26,7 +28,7 @@ const AppRoute = () => {
                 <Route path="dashboard" element={<Dashboard />} />
                 <Route path="profile" element={<ProfilePage />} />
             </Route>
-            <Route path="*" element={<Page404 />}/>
+            <Route path="*" element={<Page404 />} />
         </Routes>
     );
 };

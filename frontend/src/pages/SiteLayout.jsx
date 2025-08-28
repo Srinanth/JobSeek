@@ -2,12 +2,11 @@ import Footer from '../components/Footer';
 import Navbar from '../components/Navbar';
 import { Outlet,useLocation } from 'react-router';
 
-
 const SiteLayout = () => {
     const location = useLocation();
     const hideNavbarRoutes = ["/dashboard", "/profile"];
     return (
-        
+
         <>
             {!hideNavbarRoutes.includes(location.pathname) && <Navbar />}
             <main>

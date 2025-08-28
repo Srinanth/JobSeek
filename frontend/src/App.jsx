@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import AppRoutes from './routes/AppRoutes';
+import AppRoutes from "./routes/AppRoutes";
 
 const App = () => {
   useEffect(() => {
@@ -7,9 +7,7 @@ const App = () => {
     if (loader) loader.remove();
   }, []);
 
-  return (
-    <AppRoutes />
-  )
-}
+  return <AppRoutes />;
+};
 
 export default App;

@@ -6,7 +6,7 @@ const SiteLayout = () => {
     const location = useLocation();
     const hideNavbarRoutes = ["/dashboard", "/profile"];
     return (
-        
+
         <>
             {!hideNavbarRoutes.includes(location.pathname) && <Navbar />}
             <main>

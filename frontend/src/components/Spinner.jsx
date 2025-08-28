@@ -1,14 +1,9 @@
-import { DotLottieReact } from '@lottiefiles/dotlottie-react';
+import LoadingImg from '../assets/SimpleLoading.svg';
 
 const Spinner = () => {
     return (
         <div>
-            <DotLottieReact
-                src="https://lottie.host/bfb19f9e-fb82-4278-9d6f-283c78c5f7e8/jvhi9wEbKA.lottie"
-                loop
-                autoplay
-                className='w-30'
-            />
+            <img src={LoadingImg} alt="loading animation" />
         </div>
     )
 }

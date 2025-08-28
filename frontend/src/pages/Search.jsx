@@ -1,4 +1,5 @@
 import Filter from '../components/Filter'
+
 import Listings from '../components/Listings'
 
 const Search = () => {

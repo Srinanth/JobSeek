@@ -1,4 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router';
+import { supabase } from '../lib/supabaseClient';
 
 // Components
 const StatCard = ({ label, value, color }) => (
@@ -8,7 +10,6 @@ const StatCard = ({ label, value, color }) => (
         <p className={`text-sm font-medium ${color} mb-1`}>{label}</p>
         <p className="text-2xl font-bold text-gray-900">{value}</p>
       </div>
-      
     </div>
     <div className="mt-4 pt-3 border-t border-gray-100">
       <p className="text-xs text-gray-500">Updated just now</p>
@@ -33,7 +34,7 @@ const JobCard = ({ job, type, onSave, onApply }) => {
           
           {type === 'recent' ? (
             <div className="flex items-center justify-between mt-3">
-              <span className={`status-badge ${statusColors[job.status]}`}>
+              <span className={`text-xs font-medium py-1 px-2 ${statusColors[job.status]}`}>
                 {job.status}
               </span>
               <span className="text-xs text-gray-500">{job.date}</span>
@@ -41,7 +42,10 @@ const JobCard = ({ job, type, onSave, onApply }) => {
           ) : (
             <>
               <div className="flex items-center text-sm text-gray-600 mb-3">
-                <i className="fas fa-map-marker-alt mr-2"></i>
+                <svg className="w-4 h-4 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                </svg>
                 {job.location}
               </div>
               <div className="flex items-center justify-between">
@@ -52,7 +56,9 @@ const JobCard = ({ job, type, onSave, onApply }) => {
                     className="text-gray-500 hover:text-blue-600 p-2 rounded-full hover:bg-blue-50"
                     aria-label="Save job"
                   >
-                    <i className="far fa-bookmark"></i>
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path>
+                    </svg>
                   </button>
                   <button 
                     onClick={() => onApply(job)}
@@ -71,6 +77,7 @@ const JobCard = ({ job, type, onSave, onApply }) => {
 };
 
 const Dashboard = () => {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('Dashboard');
   const [user, setUser] = useState({
     name: 'Alex Johnson',
@@ -82,8 +89,31 @@ const Dashboard = () => {
   const [stats, setStats] = useState([]);
   const [recentJobs, setRecentJobs] = useState([]);
   const [recommendedJobs, setRecommendedJobs] = useState([]);
-  const [notifications, setNotifications] = useState(3);
   const [searchQuery, setSearchQuery] = useState('');
+
+  // Check authentication on component mount
+  useEffect(() => {
+    checkAuth();
+  }, []);
+
+  const checkAuth = async () => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        navigate("/login");
+      } else {
+        // Set user data from session
+        setUser(prev => ({
+          ...prev,
+          name: session.user.user_metadata.full_name || session.user.email,
+          avatar: session.user.user_metadata.avatar_url || prev.avatar
+        }));
+      }
+    } catch (error) {
+      console.error("Error checking auth:", error);
+      navigate("/login");
+    }
+  };
 
   // Load data on component mount
   useEffect(() => {
@@ -111,10 +141,14 @@ const Dashboard = () => {
     }, 500);
   }, []);
 
-  const handleLogout = useCallback(() => {
-    // Logout logic would go here
-    alert('Logging out...');
-  }, []);
+  const handleLogout = useCallback(async () => {
+    try {
+      await supabase.auth.signOut();
+      navigate("/login");
+    } catch (error) {
+      console.error("Error signing out:", error);
+    }
+  }, [navigate]);
 
   const handleSaveJob = useCallback((job) => {
     alert(`Saving job: ${job.title}`);
@@ -140,7 +174,7 @@ const Dashboard = () => {
         </div>
         <nav className="mt-6">
           <div 
-            className={`flex items-center cursor-pointer px-6 py-3 ${activeTab === 'dashboard' ? 'bg-blue-50 border-l-4 border-blue-500' : ''}`}
+            className={`flex items-center cursor-pointer px-6 py-3 ${activeTab === 'Dashboard' ? 'bg-blue-50 border-l-4 border-blue-500' : ''}`}
             onClick={() => setActiveTab('Dashboard')}
           >
             <svg className="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -150,7 +184,7 @@ const Dashboard = () => {
           </div>
           
           <div 
-            className={`flex items-center cursor-pointer px-6 py-3 ${activeTab === 'profile' ? 'bg-blue-50 border-l-4 border-blue-500' : ''}`}
+            className={`flex items-center cursor-pointer px-6 py-3 ${activeTab === 'Profile' ? 'bg-blue-50 border-l-4 border-blue-500' : ''}`}
             onClick={() => setActiveTab('Profile')}
           >
             <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -159,10 +193,8 @@ const Dashboard = () => {
             <span className="mx-4 font-medium">Profile</span>
           </div>
           
-          
-          
           <div 
-            className={`flex items-center cursor-pointer px-6 py-3 ${activeTab === 'saved' ? 'bg-blue-50 border-l-4 border-blue-500' : ''}`}
+            className={`flex items-center cursor-pointer px-6 py-3 ${activeTab === 'Saved Jobs' ? 'bg-blue-50 border-l-4 border-blue-500' : ''}`}
             onClick={() => setActiveTab('Saved Jobs')}
           >
             <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -178,10 +210,9 @@ const Dashboard = () => {
         {/* Header */}
         <header className="flex items-center justify-between p-5 bg-white shadow-sm">
           <h2 className="text-xl font-semibold text-gray-800">{activeTab}</h2>
-          <div className="flex items-center ">
-          
-            <div className="flex items-center ">
-              <div className="mr-2  text-right">
+          <div className="flex items-center">
+            <div className="flex items-center">
+              <div className="mr-2 text-right">
                 <p className="text-sm font-medium text-gray-900">{user.name}</p>
                 <p className="text-xs text-gray-500">{user.jobTitle}</p>
               </div>
@@ -198,7 +229,6 @@ const Dashboard = () => {
                   Logout
                 </button>
               </div>
-
             </div>
           </div>
         </header>
@@ -210,9 +240,8 @@ const Dashboard = () => {
             <div className="flex justify-between items-center">
               <div>
                 <h2 className="text-2xl font-bold mb-2">Welcome back, {user.name}!</h2>
-                
+                <p className="text-blue-100">Your job search is looking great. Keep it up!</p>
               </div>
-              
             </div>
           </div>
 
@@ -223,7 +252,6 @@ const Dashboard = () => {
                 key={index} 
                 label={stat.label} 
                 value={stat.value} 
-                icon={stat.icon}
                 color={stat.color}
               />
             ))}
@@ -258,6 +286,15 @@ const Dashboard = () => {
                 <button className="text-sm text-blue-600 hover:text-blue-800 font-medium">
                   View All
                 </button>
+              </div>
+              <div className="mb-4">
+                <input
+                  type="text"
+                  placeholder="Search jobs..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
               </div>
               <div className="space-y-4">
                 {filteredRecommendedJobs.map((job) => (

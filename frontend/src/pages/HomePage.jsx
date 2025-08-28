@@ -1,59 +1,48 @@
 import React from "react";
+import Spinner from "../components/Spinner";
+import heroImg from '../assets/heroimg.png'
 
 const Home = () => {
   return (
-    <div className="bg-blue-50 dark:bg-gray-900 text-gray-800 dark:text-white">
-      
-      <section className="text-center py-16 px-4 bg-blue-600 text-white">
-        <h1 className="text-4xl md:text-5xl font-bold mb-4">
-          Find Jobs That Match Your Skills
-        </h1>
-        <p className="text-lg mb-8">
-          Tailored job suggestions based on YOU
-        </p>
-
-        
-        <div className="flex flex-col md:flex-row justify-center items-center gap-4 max-w-2xl mx-auto">
-          <input
-            type="text"
-            placeholder="Keyword"
-            className="px-4 py-2 rounded w-full md:w-1/3 border bg-white border-gray-300 text-black"
-          />
-          <input
-            type="text"
-            placeholder="Location"
-            className="px-4 py-2 rounded w-full md:w-1/3 border bg-white border-gray-300 text-black"
-          />
-          <button className="px-6 py-2 bg-white text-black rounded hover:bg-gray-200 w-full md:w-auto cursor-pointer">
-            Search 🔍
-          </button>
-        </div>
-      </section>
-
-      
-      <section className="py-16 bg-white dark:bg-gray-800 px-4">
-        <div className="max-w-6xl mx-auto grid gap-8 md:grid-cols-3">
-          
-          <div className="bg-gray-100 dark:bg-gray-700 p-6 rounded-lg shadow-md">
-            <h3 className="text-xl font-semibold mb-2 text-blue-600">Resume Upload</h3>
-            <p>Upload your resume and let employers find you easily.</p>
+    <div className="pt-16 min-h-screen bg-blue-300/10 lg:pb-30">
+      {/*Landing */}
+      <section className="max-w-screen-2xl w-full h-full m-auto px-6 lg:flex">
+        {/* Left */}
+        <div className="md:pt-30 pt-20 flex-1">
+          {/*Text box */}
+          <div>
+            <h2 className="text-4xl md:text-6xl font-bold">Find Your Dream Job with <span className="text-blue-500">AI-Powered</span> Recommendations</h2>
+            <p className="text-gray-500 text-lg sm:text-xl pt-8">Discover thousands of job opportunities tailored to your skills and preferences. Let our intelligent matching system connect you with the perfect career opportunities.</p>
           </div>
 
-          
-          <div className="bg-gray-100 dark:bg-gray-700 p-6 rounded-lg shadow-md">
-            <h3 className="text-xl font-semibold mb-2 text-blue-600">Skill Matching</h3>
-            <p>We find jobs based on the skills you add to your profile.</p>
+          {/*Stats */}
+          <div className="bg-white p-4 flex sm:gap-8 gap-4 border border-gray-200 rounded-lg shadow-md mt-8 w-fit">
+            <div>
+              <h2 className="text-blue-500 font-bold text-3xl">50K+</h2>
+              <p className="text-gray-500 text-sm">Active Jobs</p>
+            </div>
+            <div className="border-x-4 sm:px-7 px-4 border-x-blue-500">
+              <h2 className="text-blue-500 font-bold text-3xl">21K+</h2>
+              <p className="text-gray-500 text-sm">Happy Users</p>
+            </div>
+            <div>
+              <h2 className="text-blue-500 font-bold text-3xl">500+</h2>
+              <p className="text-gray-500 text-sm">Companies</p>
+            </div>
           </div>
 
-          
-          <div className="bg-gray-100 dark:bg-gray-700 p-6 rounded-lg shadow-md">
-            <h3 className="text-xl font-semibold mb-2 text-blue-600">Smart Suggestions</h3>
-            <p>AI-powered recommendations tailored to your goals.</p>
+          {/* Buttons CTA*/}
+          <div className="mt-8 flex gap-4">
+            <button className="sm:px-10 px-5 sm:text-md text-sm py-4 bg-white border border-gray-200 rounded-lg capitalize cursor-pointer text-blue-500 font-bold">Get Started for free <i className="fa fa-arrow-right pl-3 text-blue-500"></i> </button>
+            <button className="border border-gray-300 text-gray-500 font-bold  cursor-pointer sm:px-6 sm:text-md text-sm px-5 rounded-lg py-4">Sign In</button>
           </div>
         </div>
-      </section>
 
-    
+        {/*Right */}
+        <div className="lg:min-w-190 lg:flex lg:h-full justify-center lg:mt-50 mb-10">
+          <img src={heroImg} alt="Hero Image" className="lg:w-150 md:h-100 mt-6 lg:rotate-3 rounded-xl border border-gray-200 shadow-2xl"/>
+        </div>
+      </section>
     </div>
   );
 };

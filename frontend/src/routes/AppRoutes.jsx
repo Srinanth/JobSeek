@@ -1,17 +1,18 @@
 import { Routes, Route } from "react-router";
 import Home from "../pages/HomePage";
-import SignUpForm from "../pages/SignUp";
+import SignUp from "../pages/SignUp";
 import LoginForm from "../pages/Login";
 import Admin from "../pages/Admin";
 import SiteLayout from "../pages/SiteLayout";
 import Dashboard from "../pages/dashboard";
 import Search from "../pages/Search";
+import ProfilePage from "../pages/Profile";
 
 const AppRoute = () => {
     return (
         <Routes>
             {/* Public/auth routes */}
-            <Route path="/" element={<SignUpForm />} />
+            <Route path="/" element={<SignUp />} />
             <Route path="/login" element={<LoginForm />} />
 
             {/* Routes with layout */}
@@ -20,6 +21,7 @@ const AppRoute = () => {
                 <Route path="search" element={<Search />} />
                 <Route path="admin" element={<Admin />} />
                 <Route path="dashboard" element={<Dashboard />} />
+                <Route path="profile" element={<ProfilePage />} />
             </Route>
         </Routes>
     );

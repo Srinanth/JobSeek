@@ -6,22 +6,15 @@ import Admin from "../pages/Admin";
 import SiteLayout from "../pages/SiteLayout";
 import Dashboard from "../pages/dashboard";
 import Search from "../pages/Search";
-<<<<<<< HEAD
 import ProfilePage from "../pages/Profile";
-=======
 import Page404 from "../pages/Page404";
->>>>>>> db22b41bb073a7196c213ccf02b01cd343fe703b
 
 const AppRoute = () => {
     return (
         <Routes>
             {/* Public/auth routes */}
-<<<<<<< HEAD
-            <Route path="/" element={<SignUp />} />
-=======
-            <Route path="/signup" element={<SignUpForm />} />
->>>>>>> db22b41bb073a7196c213ccf02b01cd343fe703b
-            <Route path="/login" element={<LoginForm />} />
+            <Route path="/signup" element={<SignUp />} />
+            <Route path="/login" element={<Login />} />
 
             {/* Routes with layout */}
             <Route path="/" element={<SiteLayout />}>
@@ -31,7 +24,7 @@ const AppRoute = () => {
                 <Route path="dashboard" element={<Dashboard />} />
                 <Route path="profile" element={<ProfilePage />} />
             </Route>
-            <Route path="*" element={<Page404 />}/>
+            <Route path="*" element={<Page404 />} />
         </Routes>
     );
 };

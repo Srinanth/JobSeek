@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { Link } from 'react-router';
 
 // Components
 const StatCard = ({ label, value, color }) => (
@@ -135,41 +136,39 @@ const Dashboard = () => {
     <div className="flex h-screen bg-blue-50">
       {/* Sidebar*/}
       <div className="w-64 bg-white shadow-md">
-        <div className="p-6 bg-white ">
+        <div className="p-6 bg-white">
           <h1 className="text-2xl font-bold text-blue-600">JobSeek</h1>
         </div>
         <nav className="mt-6">
-          <div 
-            className={`flex items-center cursor-pointer px-6 py-3 ${activeTab === 'dashboard' ? 'bg-blue-50 border-l-4 border-blue-500' : ''}`}
+          <Link to="/dashboard" 
+            className={`flex items-center cursor-pointer px-6 py-3 ${activeTab === 'Dashboard' ? 'bg-blue-50 border-l-4 border-blue-500' : ''}`}
             onClick={() => setActiveTab('Dashboard')}
           >
-            <svg className="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
             </svg>
             <span className="mx-4 font-medium">Dashboard</span>
-          </div>
+          </Link>
           
-          <div 
-            className={`flex items-center cursor-pointer px-6 py-3 ${activeTab === 'profile' ? 'bg-blue-50 border-l-4 border-blue-500' : ''}`}
+          <Link to="/profile" 
+            className={`flex items-center cursor-pointer px-6 py-3 ${activeTab === 'Profile' ? 'bg-blue-50 border-l-4 border-blue-500' : ''}`}
             onClick={() => setActiveTab('Profile')}
           >
             <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
             </svg>
             <span className="mx-4 font-medium">Profile</span>
-          </div>
+          </Link>
           
-          
-          
-          <div 
-            className={`flex items-center cursor-pointer px-6 py-3 ${activeTab === 'saved' ? 'bg-blue-50 border-l-4 border-blue-500' : ''}`}
+          <Link to="/savedjobs" 
+            className={`flex items-center cursor-pointer px-6 py-3 ${activeTab === 'Saved Jobs' ? 'bg-blue-50 border-l-4 border-blue-500' : ''}`}
             onClick={() => setActiveTab('Saved Jobs')}
           >
             <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path>
             </svg>
             <span className="mx-4 font-medium">Saved Jobs</span>
-          </div>
+          </Link>
         </nav>
       </div>
 

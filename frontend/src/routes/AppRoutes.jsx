@@ -8,6 +8,7 @@ import Dashboard from "../pages/dashboard";
 import Search from "../pages/Search";
 import ProfilePage from "../pages/Profile";
 import Page404 from "../pages/Page404";
+import SavedJobsPage from "../pages/Saved";
 
 const AppRoute = () => {
   return (
@@ -23,6 +24,7 @@ const AppRoute = () => {
         <Route path="admin" element={<Admin />} />
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="profile" element={<ProfilePage />} />
+        <Route path="savedjobs" element={<SavedJobsPage />} />
       </Route>
 
       {/* Fallback for unmatched routes */}

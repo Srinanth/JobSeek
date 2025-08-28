@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router";
 
 const Navbar = () => {
   return (
@@ -12,17 +13,17 @@ const Navbar = () => {
 
         {/*NavLinks */}
         <div className="hidden md:flex justify-between gap-8">
-          <a href="#">Home</a>
-          <a href="#">Jobs</a>
-          <a href="#">Dashboard</a>
-          <a href="#">Contact</a>
+          <Link to={'/'}>Home</Link>
+          <Link to={'/search'}>Jobs</Link>
+          <Link to={'/dashboard'}>Dashboard</Link>
+          <Link to={'/admin'}>Admin</Link>
         </div>
 
         {/*Navbuttons*/}
         <div>
           <div className="flex justify-between gap-4 items-center">
             <i className="fa-regular fa-bell text-lg"></i>
-            <button className="bg-blue-500 py-2 px-4 rounded-lg text-white">Login</button>
+            <Link className="bg-blue-500 py-2 px-4 rounded-lg text-white" to={'/login'}>Login</Link>
           </div>
         </div>
       </div>

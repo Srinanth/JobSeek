@@ -1,5 +1,4 @@
 import { useEffect } from "react";
-import LoadingScreen from './pages/LoadingScreen';
 import AppRoutes from './routes/AppRoutes';
 
 const App = () => {
@@ -9,9 +8,7 @@ const App = () => {
   }, []);
 
   return (
-    <LoadingScreen>
-      <AppRoutes />
-    </LoadingScreen>
+    <AppRoutes />
   )
 }
 

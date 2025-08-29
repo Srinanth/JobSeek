@@ -54,12 +54,6 @@ const ProfilePage = () => {
                 .single();
             if (profileError && profileError.code !== 'PGRST116') throw profileError; // Ignore "no rows found" error
 
-            // Fetch user skills
-            const { data: userSkills, error: skillsError } = await supabase
-                .from('user_skills')
-                .select('skills(name)')
-                .eq('user_id', authUser.id);
-            if (skillsError) throw skillsError;
 
             // Fetch education history
             const { data: education, error: educationError } = await supabase
@@ -77,15 +71,6 @@ const ProfilePage = () => {
                 .order('start_date', { ascending: false });
             if (workError) throw workError;
 
-            // Fetch available skills for dropdown
-            const { data: skills, error: availableSkillsError } = await supabase
-                .from('skills')
-                .select('*')
-                .order('name');
-            if (availableSkillsError) throw availableSkillsError;
-            setAvailableSkills(skills || []);
-            
-            // FIX: Use a safe profile object to avoid accessing properties on null
             const safeProfile = profile || {};
 
             // Set profile data with fallbacks for every field
@@ -101,7 +86,7 @@ const ProfilePage = () => {
                 resume_url: safeProfile.resume_url || '',
                 linkedin_url: safeProfile.linkedin_url || '',
                 profile_picture_url: safeProfile.profile_picture_url || '',
-                skills: userSkills?.map(us => us.skills.name) || [],
+                skills: safeProfile.skills || [], 
                 education_history: education || [],
                 work_experience: work || []
             };
@@ -165,30 +150,12 @@ const ProfilePage = () => {
                     desired_roles: editData.desired_roles,
                     preferred_locations: editData.preferred_locations,
                     linkedin_url: editData.linkedin_url,
+                    resume_url: editData.resume_url,
                     profile_picture_url: profilePictureUrl,
                     updated_at: new Date()
                 })
                 .eq('id', authUser.id);
             if (profileError) throw profileError;
-
-            // 3. Update Skills (Delete all then insert new ones)
-            const { error: deleteSkillsError } = await supabase.from('user_skills').delete().eq('user_id', authUser.id);
-            if (deleteSkillsError) throw deleteSkillsError;
-            if (editData.skills.length > 0) {
-                // Get existing skill IDs
-                const { data: existingSkills, error: existingSkillsError } = await supabase
-                    .from('skills')
-                    .select('id, name')
-                    .in('name', editData.skills);
-                if (existingSkillsError) throw existingSkillsError;
-                
-                const skillIds = existingSkills.map(s => s.id);
-                
-                // Add new user skills
-                const userSkillsData = skillIds.map(skill_id => ({ user_id: authUser.id, skill_id }));
-                const { error: insertSkillsError } = await supabase.from('user_skills').insert(userSkillsData);
-                if (insertSkillsError) throw insertSkillsError;
-            }
 
             // 4. Update Education History (Delete all then insert new ones)
            const { error: deleteEduError } = await supabase
@@ -256,38 +223,6 @@ const ProfilePage = () => {
         }
     };
     
-    // Resume Deletion Logic
-    const handleDeleteResume = async () => {
-        if (!profileData.resume_url || !window.confirm("Are you sure you want to delete your resume?")) return;
-
-        try {
-            setLoading(true);
-            const { data: { user: authUser } } = await supabase.auth.getUser();
-            if (!authUser) return;
-
-            // Extract the file path from the URL
-            const filePath = profileData.resume_url.substring(profileData.resume_url.indexOf('resumes/'));
-            
-            // 1. Delete from storage
-            const { error: storageError } = await supabase.storage.from('resumes').remove([filePath]);
-            if (storageError) throw storageError;
-
-            // 2. Clear the URL from the profile
-            const { error: updateError } = await supabase.from('profiles').update({ resume_url: null }).eq('id', authUser.id);
-            if (updateError) throw updateError;
-
-            // 3. Update local state
-            setProfileData(prev => ({ ...prev, resume_url: '' }));
-            setEditData(prev => ({ ...prev, resume_url: '' }));
-            alert('Resume deleted successfully.');
-
-        } catch (error) {
-            console.error('Error deleting resume:', error);
-            alert('Could not delete resume. Please try again.');
-        } finally {
-            setLoading(false);
-        }
-    };
 
     const handleLogout = useCallback(async () => {
         try {
@@ -360,40 +295,6 @@ const ProfilePage = () => {
             const reader = new FileReader();
             reader.onload = () => setAvatarPreview(reader.result);
             reader.readAsDataURL(file);
-        }
-    };
-    
-    const uploadResume = async (file) => {
-        if (!file || file.type !== 'application/pdf') {
-            alert('Please select a PDF file.');
-            return;
-        }
-        try {
-            setLoading(true);
-            const { data: { user: authUser } } = await supabase.auth.getUser();
-            if (!authUser) return;
-
-            const fileExt = file.name.split('.').pop();
-            const fileName = `${authUser.id}/${Date.now()}.${fileExt}`;
-            const filePath = `resumes/${fileName}`;
-
-            const { error: uploadError } = await supabase.storage.from('resumes').upload(filePath, file);
-            if (uploadError) throw uploadError;
-
-            const { data } = supabase.storage.from('resumes').getPublicUrl(filePath);
-            const publicUrl = data.publicUrl;
-
-            const { error: updateError } = await supabase.from('profiles').update({ resume_url: publicUrl }).eq('id', authUser.id);
-            if (updateError) throw updateError;
-
-            setProfileData(prev => ({ ...prev, resume_url: publicUrl }));
-            setEditData(prev => ({ ...prev, resume_url: publicUrl })); // Also update edit state
-            alert('Resume uploaded successfully!');
-        } catch (error) {
-            console.error('Error uploading resume:', error);
-            alert('Error uploading resume. Please try again.');
-        } finally {
-            setLoading(false);
         }
     };
     
@@ -541,75 +442,211 @@ const ProfilePage = () => {
                     </div>
                     
                     {/* Contact Information */}
-                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                        <h2 className="text-xl font-semibold text-gray-900 mb-6">Contact Information</h2>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
-                                <input type="email" value={editData.email || ''} className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed" readOnly/>
-                            </div>
-                            {/* Other contact fields... */}
-                        </div>
-                    </div>
+                                            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                                            <h2 className="text-xl font-semibold text-gray-900 mb-6">Contact Information</h2>
 
-                    {/* Resume Upload */}
-                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                        <h2 className="text-xl font-semibold text-gray-900 mb-6">Resume</h2>
-                        {profileData.resume_url ? (
-                            <div className="border border-gray-200 rounded-lg p-6">
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-4">
-                                        <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center"><svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg></div>
-                                        <div><p className="font-medium text-gray-900">Resume.pdf</p><a href={profileData.resume_url} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 hover:underline">View Resume</a></div>
-                                    </div>
-                                    <button onClick={handleDeleteResume} className="p-2 text-gray-600 hover:text-red-600 transition-colors">
-                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1-1H8a1 1 0 00-1 1v3M4 7h16" /></svg>
-                                    </button>
-                                </div>
-                            </div>
-                        ) : (
-                            <div className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${dragActive ? 'border-blue-500 bg-blue-50' : 'border-gray-300'}`} onDragEnter={handleDrag} onDragLeave={handleDrag} onDragOver={handleDrag} onDrop={(e) => handleFileDrop(e, uploadResume)}>
-                                {/* Upload UI */}
-                                <p className="text-gray-600 mb-2"><span className="font-medium text-blue-600">Click to upload</span> or drag and drop</p>
-                                <p className="text-sm text-gray-500">PDF only (max. 10MB)</p>
-                                <input type="file" accept=".pdf" onChange={(e) => handleFileInput(e, uploadResume)} className="hidden" id="resume-upload"/>
-                                <button onClick={() => document.getElementById('resume-upload').click()} className="mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Upload Resume</button>
-                            </div>
-                        )}
-                    </div>
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                {/* Email (read-only from Supabase Auth) */}
+                                                <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                                                <input
+                                                    type="email"
+                                                    value={editData.email || ''}
+                                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed"
+                                                    readOnly
+                                                />
+                                                </div>
+
+                                                {/* Phone Number */}
+                                                <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">Phone</label>
+                                                <input
+                                                    type="text"
+                                                    value={editData.phone || ''}
+                                                    onChange={(e) =>
+                                                    setEditData({ ...editData, phone: e.target.value })
+                                                    }
+                                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                                                    placeholder="Enter phone number"
+                                                />
+                                                </div>
+
+                                                {/* Location */}
+                                                <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">Location</label>
+                                                <input
+                                                    type="text"
+                                                    value={editData.location || ''}
+                                                    onChange={(e) =>
+                                                    setEditData({ ...editData, location: e.target.value })
+                                                    }
+                                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                                                    placeholder="Enter location"
+                                                />
+                                                </div>
+
+                                                {/* LinkedIn URL */}
+                                                <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">LinkedIn</label>
+                                                <input
+                                                    type="url"
+                                                    value={editData.linkedin_url || ''}
+                                                    onChange={(e) =>
+                                                    setEditData({ ...editData, linkedin_url: e.target.value })
+                                                    }
+                                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                                                    placeholder="https://linkedin.com/in/username"
+                                                />
+                                                </div>
+
+                                                {/* Resume URL */}
+                                                <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">Resume</label>
+                                                <input
+                                                    type="url"
+                                                    value={editData.resume_url || ''}
+                                                    onChange={(e) =>
+                                                    setEditData({ ...editData, resume_url: e.target.value })
+                                                    }
+                                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                                                    placeholder="Resume URL (Google Drive, etc.)"
+                                                />
+                                                </div>
+                                            </div>
+                                            </div>
+
+                 <div>
+  <label className="block text-sm font-medium text-gray-700 mb-2">Skills</label>
+  <input
+    type="text"
+    value={editData.skills?.join(", ") || ""}
+    onChange={(e) => setEditData({ ...editData, skills: e.target.value.split(",").map(s => s.trim()) })}
+    className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+    placeholder="Enter skills separated by commas"
+  />
+</div>
                     
                     {/* Education History */}
                     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                         <h2 className="text-xl font-semibold text-gray-900 mb-6">Education History</h2>
                         {isEditing ? (
                             <div className="space-y-4">
-                                <button onClick={addEducation} className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">+ Add Education</button>
-                                {editData.education_history.map((edu, index) => (
-                                    <div key={index} className="border border-gray-200 rounded-lg p-4 space-y-4">
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                            <div><label className="block text-sm font-medium text-gray-700 mb-1">Institution</label><input type="text" value={edu.institution} onChange={(e) => handleEducationChange(index, 'institution_name', e.target.value)} className="w-full px-4 py-2 border rounded-lg"/></div>
-                                            <div><label className="block text-sm font-medium text-gray-700 mb-1">Degree</label><input type="text" value={edu.degree} onChange={(e) => handleEducationChange(index, 'degree', e.target.value)} className="w-full px-4 py-2 border rounded-lg"/></div>
-                                        </div>
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                            <div><label className="block text-sm font-medium text-gray-700 mb-1">Start Date</label><input type="date" value={edu.start_date} onChange={(e) => handleEducationChange(index, 'start_date', e.target.value)} className="w-full px-4 py-2 border rounded-lg"/></div>
-                                            <div><label className="block text-sm font-medium text-gray-700 mb-1">End Date</label><input type="date" value={edu.end_date} onChange={(e) => handleEducationChange(index, 'end_date', e.target.value)} className="w-full px-4 py-2 border rounded-lg"/></div>
-                                        </div>
-                                        <button onClick={() => removeEducation(index)} className="mt-2 px-4 py-2 text-red-600 hover:text-red-800">Remove</button>
+                            <button
+                                onClick={addEducation}
+                                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                            >
+                                + Add Education
+                            </button>
+
+                            {editData.education_history.map((edu, index) => (
+                                <div
+                                key={index}
+                                className="border border-gray-200 rounded-lg p-4 space-y-4"
+                                >
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Institution
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={edu.institution_name || ""}
+                                        onChange={(e) =>
+                                        handleEducationChange(index, "institution_name", e.target.value)
+                                        }
+                                        className="w-full px-4 py-2 border rounded-lg"
+                                    />
                                     </div>
-                                ))}
+                                    <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Degree
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={edu.degree || ""}
+                                        onChange={(e) =>
+                                        handleEducationChange(index, "degree", e.target.value)
+                                        }
+                                        className="w-full px-4 py-2 border rounded-lg"
+                                    />
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Field of Study
+                                    </label>
+                                    <input
+                                    type="text"
+                                    value={edu.field_of_study || ""}
+                                    onChange={(e) =>
+                                        handleEducationChange(index, "field_of_study", e.target.value)
+                                    }
+                                    className="w-full px-4 py-2 border rounded-lg"
+                                    />
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Start Date
+                                    </label>
+                                    <input
+                                        type="date"
+                                        value={edu.start_date || ""}
+                                        onChange={(e) =>
+                                        handleEducationChange(index, "start_date", e.target.value)
+                                        }
+                                        className="w-full px-4 py-2 border rounded-lg"
+                                    />
+                                    </div>
+                                    <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        End Date
+                                    </label>
+                                    <input
+                                        type="date"
+                                        value={edu.end_date || ""}
+                                        onChange={(e) =>
+                                        handleEducationChange(index, "end_date", e.target.value)
+                                        }
+                                        className="w-full px-4 py-2 border rounded-lg"
+                                    />
+                                    </div>
+                                </div>
+
+                                <button
+                                    onClick={() => removeEducation(index)}
+                                    className="mt-2 px-4 py-2 text-red-600 hover:text-red-800"
+                                >
+                                    Remove
+                                </button>
+                                </div>
+                            ))}
                             </div>
                         ) : (
                             <div className="space-y-6">
-                                {profileData.education_history?.map((edu, index) => (
-                                    <div key={index} className="border-l-4 border-blue-500 pl-6 py-2">
-                                        <h3 className="text-lg font-semibold text-gray-900">{edu.degree}</h3>
-                                        <p className="text-gray-600">{edu.institution}</p>
-                                        <p className="text-sm text-gray-500">{new Date(edu.start_date).toLocaleDateString()} - {edu.end_date ? new Date(edu.end_date).toLocaleDateString() : 'Present'}</p>
-                                    </div>
-                                ))}
+                            {profileData.education_history?.map((edu, index) => (
+                                <div
+                                key={index}
+                                className="border-l-4 border-blue-500 pl-6 py-2"
+                                >
+                                <h3 className="text-lg font-semibold text-gray-900">
+                                    {edu.degree} {edu.field_of_study && `in ${edu.field_of_study}`}
+                                </h3>
+                                <p className="text-gray-600">{edu.institution_name}</p>
+                                <p className="text-sm text-gray-500">
+                                    {new Date(edu.start_date).toLocaleDateString()} -{" "}
+                                    {edu.end_date
+                                    ? new Date(edu.end_date).toLocaleDateString()
+                                    : "Present"}
+                                </p>
+                                </div>
+                            ))}
                             </div>
                         )}
-                    </div>
+                        </div>
+
                     
                     {/* Work Experience (similar structure to education) */}
                     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
